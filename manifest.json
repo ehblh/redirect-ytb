@@ -1,0 +1,21 @@
+{
+    "manifest_version": 3,
+    "name": "NoAdsYoutube",
+    "description": "Jump to a mirror site",
+    "version": "1.1",
+    "icons": {
+        "16":"image/16.png",
+        "19":"image/19.png",
+        "38":"image/38.png",
+        "48":"image/48.png",
+        "128": "image/128.png"
+    },
+    "background": {
+        "service_worker": "background.js"
+    },
+    "permissions": [
+        "webNavigation",
+        "tabs",
+        "history"
+    ]
+}
