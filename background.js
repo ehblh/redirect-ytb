@@ -3,24 +3,24 @@
 // Define a regular expression to match YouTube video URLs
 const youtubeVideoRegex = /^https?:\/\/(www\.)?youtube\.com\/watch\?v=/;
 
-const mirrorSite = "yewtu.be";
-const mirrorVideoRegex = /^https?:\/\/(www\.)?yewtu\.be\/watch\?v=/;
+const redirectHost = "yewtu.be";
+const redirectURLRegex = /^https?:\/\/(www\.)?yewtu\.be\/watch\?v=/;
 
-const isLastPageMirrorSite = new Map();
+const isLastPageRedirectURL = new Map();
 
 // Function to check if a URL is a YouTube video page
 function isYouTubeVideoPage(url) {
   return youtubeVideoRegex.test(url);
 }
 
-function isMirrorYoutubePage(url) {
-  return mirrorVideoRegex.test(url);
+function isRedirectURL(url) {
+  return redirectURLRegex.test(url);
 }
 
-// Function to update the host to mirror site
+// Function to update the host
 function updateHostToMirrorSite(url) {
   const urlObject = new URL(url);
-  urlObject.host = mirrorSite;
+  urlObject.host = redirectHost;
   return urlObject.href;
 }
 
@@ -35,25 +35,25 @@ function handleTabChange(tabId, changeInfo, tab) {
     return;
   }
 
-  let isURLMirrorSite = isMirrorYoutubePage(url);
+  let isURLRedirected = isRedirectURL(url);
 
   if (
-    // We only care loading status
+    // We only care about loading status
     changeInfo.status != "loading" ||
-    // Youtube tab seems to have audible property turned off and then turned on, and  we ignore the event of turning audible on
+    // Youtube tab seems to have audible property turned off and then turned on, and we ignore the event of turning audible on
     tab.audible ||
-    // Youtube tab will append channel name and reload the page if there is none in the url, and we ignore this reload
+    // Youtube tab will append channel name and update the tab if there is none in the url, and we ignore this reload
     url.includes("ab_channel") ||
-    // We care the page when the url is youtobe video page
+    // We only care about the page when the url is youtobe video page
     !isYouTubeVideoPage(url)
   ) {
-    isLastPageMirrorSite.set(tabId, isURLMirrorSite);
+    isLastPageRedirectURL.set(tabId, isURLRedirected);
     return;
   }
 
-  // we allow people to go back to youtube video page when last url is mirror youtube site url
-  if (isLastPageMirrorSite.get(tabId)) {
-    isLastPageMirrorSite.set(tabId, isURLMirrorSite);
+  // We allow users to go back to youtube video page from redirected page
+  if (isLastPageRedirectURL.get(tabId)) {
+    isLastPageRedirectURL.set(tabId, isURLRedirected);
     return;
   }
 
@@ -65,7 +65,7 @@ function handleTabChange(tabId, changeInfo, tab) {
   console.log("changeInfo", changeInfo);
   console.log("tab", tab);
 
-  isLastPageMirrorSite.set(tabId, isURLMirrorSite);
+  isLastPageRedirectURL.set(tabId, isURLRedirected);
   // Update the tab with the new URL
   chrome.tabs.update(tabId, { url: updatedURL });
 }
