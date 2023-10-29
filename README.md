@@ -1,3 +1,3 @@
 # Redirect YTB
 
-A Chrome extension to redirect Youtube watch view page to an ad-free site.
+A Chrome extension to redirect Youtube video page to an ad-free site.
